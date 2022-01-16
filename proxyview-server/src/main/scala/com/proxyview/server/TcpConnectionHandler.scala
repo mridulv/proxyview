@@ -47,18 +47,18 @@ class TcpConnectionHandler(authToken: String, connection: ActorRef, packetHandle
 
   def receive = {
     case Received(data) =>
-      log.info(s"Received data (${data.size} bytes) for $uuid from the integration.")
+      log.info(s"Received data (${data.size} bytes) for $uuid from the client.")
       val rawHttpRequest = rawHttp.parseRequest(data.utf8String)
       handleRequest(rawHttpRequest, data.utf8String)
 
     case PeerClosed =>
-      log.info(s"peer closed $uuid from integration side.")
+      log.info(s"peer closed $uuid from client side.")
       connection ! ResumeReading
       packetHandler ! PacketHandler.DeregisterClient(uuid)
       context.stop(self)
 
     case InvalidRequest =>
-      log.info(s"peer closed $uuid from integration side.")
+      log.info(s"peer closed $uuid due to invalid request.")
       connection ! ResumeReading
       packetHandler ! PacketHandler.DeregisterClient(uuid)
       context.stop(self)
