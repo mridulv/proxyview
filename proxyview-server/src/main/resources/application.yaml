@@ -1,0 +1,7 @@
+host: "localhost"
+internal:
+  port: 8002
+  token: "xxxx-xxxx-xxxx-xxxx"
+external:
+  port: 8001
+  token: "xxxx-xxxx-xxxx-xxxx"
