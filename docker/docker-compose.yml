@@ -1,0 +1,63 @@
+version: "3"
+services:
+
+  proxyview-server:
+    container_name: server
+    image: proxyview-server:0.1-SNAPSHOT
+    networks:
+      proxyview_nw:
+        aliases:
+          - localhost-server
+    environment:
+      - ENV=development
+    volumes:
+      - ../proxyview-server/src/main/resources/application.yaml:/opt/docker/conf/application.yaml
+    ports:
+      - "8080:8080"
+      - "8081:8081"
+
+  client1:
+    container_name: client1
+    image: proxyview-client:0.1-SNAPSHOT
+    networks: ["proxyview_nw"]
+    environment:
+      - ENV=development
+    volumes:
+      - conf/client1.yaml:/opt/docker/conf/application.yaml
+
+  client2:
+    container_name: client2
+    image: proxyview-client:0.1-SNAPSHOT
+    networks: ["proxyview_nw"]
+    environment:
+      - ENV=development
+    volumes:
+      - conf/client2.yaml:/opt/docker/conf/application.yaml
+
+  sample_service:
+    container_name: sample_service
+    image: httpd
+    networks:
+      proxyview_nw:
+        aliases:
+          - localhost-sample
+    ports:
+      - "8083:80"
+
+  sample_service2:
+    container_name: sample_service2
+    image: httpd
+    networks:
+      proxyview_nw:
+        aliases:
+          - localhost-sample2
+    ports:
+      - "8084:80"
+
+networks:
+  proxyview_nw:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 173.19.8.0/24

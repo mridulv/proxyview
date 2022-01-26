@@ -1,0 +1,8 @@
+agentId: "agent-2"
+routes:
+  - name: "route2"
+    value: "localhost-sample2:8084"
+    type: "cname"
+proxyview:
+  url: "localhost-server:8081"
+  token: "xxxx-xxxx-xxxx-xxxx"
