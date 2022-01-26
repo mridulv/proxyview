@@ -2,9 +2,10 @@ package com.proxyview.server.model
 
 import net.jcazevedo.moultingyaml.DefaultYamlProtocol
 
-case class ProxyviewServerConfig(host: String,
-                                 internal: ProxyviewEndpointConfig,
-                                 external: ProxyviewEndpointConfig) {
+case class ProxyviewServerConfig(
+  host: String,
+  internal: ProxyviewEndpointConfig,
+  external: ProxyviewEndpointConfig) {
 
   def externalServerConfig(): ServerConfig = {
     ServerConfig(host, external.port, external.token)

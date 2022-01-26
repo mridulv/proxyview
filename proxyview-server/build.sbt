@@ -4,6 +4,8 @@ import sbt.Keys.libraryDependencies
 
 name := "proxyview-server"
 
+mainClass in Compile := Some("com.proxyview.server.Main")
+
 libraryDependencies ++= Seq(
   "joda-time" % "joda-time" % "2.9.9",
   "com.typesafe.akka" %% "akka-http" % "10.1.3",

@@ -6,7 +6,6 @@ import com.proxyview.server.model.ProxyviewServerConfig
 import org.apache.commons.io.FileUtils
 import net.jcazevedo.moultingyaml._
 
-import java.io.File
 import java.nio.charset.StandardCharsets
 import java.nio.file.Paths
 
@@ -15,9 +14,8 @@ object Main {
   def main(args: Array[String]): Unit = {
     implicit val system = ActorSystem("proxyview-server")
     implicit val materializer = ActorMaterializer()
-    implicit val executionContext = system.dispatcher
 
-    val defaultConfigDir = "/opt/docker/data/service/conf"
+    val defaultConfigDir = "/opt/docker/conf"
     val configDir = Paths.get(Option(System.getenv("LHUB_CONFIG_DIR")).getOrElse(defaultConfigDir))
     val fileContent = FileUtils.readFileToString(configDir.resolve("application.yaml").toFile, StandardCharsets.UTF_8)
     val proxyviewServerConfig = fileContent.parseYaml.convertTo[ProxyviewServerConfig]

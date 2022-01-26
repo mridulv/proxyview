@@ -1,13 +1,20 @@
 package com.proxyview.server.handlers
 
-import akka.http.scaladsl.model.{HttpHeader, HttpRequest, HttpResponse}
+import akka.actor.ActorSystem
+import akka.event.Logging
+import akka.http.scaladsl.model.{ HttpHeader, HttpRequest, HttpResponse }
 import com.proxyview.common.models.AgentConf
-import com.proxyview.common.models.AgentConf.{AuthToken, AgentIdHeaderKey}
+import com.proxyview.common.models.AgentConf.{ AgentIdHeaderKey, AuthToken }
 import com.proxyview.server.model.ServerConfig
+import com.proxyview.common.models.Logging._
 
 import scala.collection.mutable
 
 trait Handler {
+
+  implicit val actorSystem: ActorSystem
+
+  protected val logging = Logging(actorSystem, this)
 
   val serverConfig: ServerConfig
   val agentsInfo: mutable.Map[String, AgentConf]
@@ -17,7 +24,7 @@ trait Handler {
       val agentID = req
         .headers
         .find(_.name() == AgentIdHeaderKey)
-        .map(_.name())
+        .map(_.value())
         .getOrElse("random")
       handleAuthenticated(agentID, req)
     } else {
