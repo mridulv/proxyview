@@ -3,6 +3,8 @@ import Dependencies._
 
 name := "proxyview-client"
 
+mainClass in Compile := Some("com.proxyview.client.Main")
+
 libraryDependencies ++= Seq(
   "joda-time" % "joda-time" % "2.9.9",
   "com.typesafe.akka" %% "akka-http" % "10.1.3",

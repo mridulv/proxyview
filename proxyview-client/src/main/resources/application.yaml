@@ -1,11 +1,8 @@
 agentId: "agent-1"
 routes:
-  - name: "route-1"
-    value: "localhost:8000"
+  - name: "route1"
+    value: "localhost:8083"
     type: "cname"
-  - name: "route-2"
-    value: "192.168.0.1"
-    type: "ip"
 proxyview:
-  url: "localhost:8002"
+  url: "localhost:8081"
   token: "xxxx-xxxx-xxxx-xxxx"
