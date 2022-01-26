@@ -3,9 +3,9 @@ package com.proxyview.common.models
 import ai.x.play.json.Jsonx
 import akka.http.scaladsl.model.HttpHeader
 import akka.http.scaladsl.model.headers.RawHeader
-import com.proxyview.common.models.AgentConf.{AuthToken, AgentIdHeaderKey}
+import com.proxyview.common.models.AgentConf.{ AuthToken, AgentIdHeaderKey }
 import net.jcazevedo.moultingyaml.DefaultYamlProtocol
-import play.api.libs.json.{Format, Json}
+import play.api.libs.json.{ Format, Json }
 
 import scala.collection.immutable
 import scala.util.matching.Regex
@@ -15,8 +15,7 @@ case class AgentConf(agentId: String, routes: Seq[AgentRoute], proxyview: Proxyv
   def agentHeaders(): immutable.Seq[HttpHeader] = {
     immutable.Seq(
       RawHeader(AgentIdHeaderKey, agentId),
-      RawHeader(AuthToken, proxyview.token)
-    )
+      RawHeader(AuthToken, proxyview.token))
   }
 
   def validateRoute(host: String): Boolean = {

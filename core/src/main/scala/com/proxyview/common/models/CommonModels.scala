@@ -2,7 +2,7 @@ package com.proxyview.common.models
 
 import ai.x.play.json.Jsonx
 import akka.actor.ActorRef
-import play.api.libs.json.{Format, Json}
+import play.api.libs.json.{ Format, Json }
 
 object CommonModels {
 
