@@ -2,7 +2,7 @@ package com.proxyview.client
 
 import akka.NotUsed
 import akka.actor.{ ActorRef, PoisonPill }
-import akka.http.scaladsl.model.{ ContentTypes, HttpEntity, HttpMethods, HttpRequest, StatusCodes }
+import akka.http.scaladsl.model.{ ContentTypes, HttpEntity, HttpMethods, HttpRequest, HttpResponse, StatusCodes }
 import akka.http.scaladsl.model.ws.{ Message, TextMessage, WebSocketRequest }
 import akka.stream.{ ActorMaterializer, OverflowStrategy }
 import akka.stream.scaladsl.{ Flow, Sink, Source }
@@ -30,13 +30,17 @@ class ProxyViewAgentConnectionHandler(
   implicit val ec = scala.concurrent.ExecutionContext.global
 
   def register(): Unit = {
+    val retryConfig = RetryConfig()
     logging.info(s"Sending HTTP Request to ${agentConf.proxyview.connectUri} Register")
     val httpRequest = HttpRequest(
       method = HttpMethods.POST,
       uri = agentConf.proxyview.connectUri,
       headers = agentConf.agentHeaders(),
       entity = HttpEntity(ContentTypes.`application/json`, AgentConf.ser(agentConf)))
-    Await.result(Http().singleRequest(httpRequest).flatMap(_.entity.toStrict(10.seconds)), 10.seconds)
+    Await.result(
+      RetryableHttpClient.apply(retryConfig).request(httpRequest).flatMap(_.entity.toStrict(retryConfig.overallDelay)),
+      retryConfig.overallDelay)
+
     logging.info(s"Registered agent with id: ${agentConf.agentId} with ${agentConf.proxyview.connectUri}")
   }
 

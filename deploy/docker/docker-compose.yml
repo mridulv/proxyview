@@ -3,36 +3,39 @@ services:
 
   proxyview-server:
     container_name: server
-    image: proxyview-server:0.1-SNAPSHOT
+    image: "proxyview-server:${TAG}"
     networks:
       proxyview_nw:
         aliases:
           - localhost-server
     environment:
       - ENV=development
+      - LHUB_CONFIG_DIR=/opt/docker/conf
     volumes:
-      - ../proxyview-server/src/main/resources/application.yaml:/opt/docker/conf/application.yaml
+      - ./conf/server.yaml:/opt/docker/conf/application.yaml
     ports:
       - "8080:8080"
       - "8081:8081"
 
   client1:
     container_name: client1
-    image: proxyview-client:0.1-SNAPSHOT
+    image: "proxyview-client:${TAG}"
     networks: ["proxyview_nw"]
     environment:
       - ENV=development
+      - LHUB_CONFIG_DIR=/opt/docker/conf
     volumes:
-      - conf/client1.yaml:/opt/docker/conf/application.yaml
+      - ./conf/client1.yaml:/opt/docker/conf/application.yaml
 
   client2:
     container_name: client2
-    image: proxyview-client:0.1-SNAPSHOT
+    image: "proxyview-client:${TAG}"
     networks: ["proxyview_nw"]
     environment:
       - ENV=development
+      - LHUB_CONFIG_DIR=/opt/docker/conf
     volumes:
-      - conf/client2.yaml:/opt/docker/conf/application.yaml
+      - ./conf/client2.yaml:/opt/docker/conf/application.yaml
 
   sample_service:
     container_name: sample_service

@@ -1,0 +1,28 @@
+version: 2
+jobs:
+  build:
+    working_directory: /proxyview
+    docker:
+      - image: docker:17.05.0-ce-git
+        auth:
+          username: $DOCKER_USER
+          password: $DOCKER_PASS
+        environment:
+          TAG: CIRCLE_TAG
+    steps:
+      - checkout
+      - setup_remote_docker
+      - run:
+          name: Install dependencies
+          command: |
+            apk add --no-cache \
+              py-pip=9.0.0-r1
+            pip install \
+              docker-compose==1.12.0 \
+              awscli==1.11.76
+      - run:
+          name: Push the Docker Images
+          command: |
+            docker login -u $DOCKER_USER -p $DOCKER_PASS
+            sbt proxyview-client/docker:publish
+            sbt proxyview-server/docker:publish
