@@ -31,7 +31,3 @@ sbt proxyview-server/docker:publishLocal
 Here is a basic architecture explaining the internals of Proxyview
 
 <img src="https://i.ibb.co/YTSxF40/proxyview.png" alt="Overview" style="float: left; margin-right: 10px;" width="750" height="700"/> 
-
-## Technical Details
-
-You can use proxyview

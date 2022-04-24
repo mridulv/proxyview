@@ -1,13 +1,13 @@
 package com.proxyview.server
 
-import akka.actor.{Actor, ActorRef, Props}
+import akka.actor.{ Actor, ActorRef, Props }
 import akka.event.Logging
 import akka.io.Tcp
 import akka.util.ByteString
 import TcpConnectionHandler._
 import com.proxyview.common.models.AgentConf
 import com.proxyview.common.models.CommonModels.ClientRequest
-import rawhttp.core.{RawHttp, RawHttpRequest}
+import rawhttp.core.{ RawHttp, RawHttpRequest }
 
 import java.util.UUID
 import scala.util.Try
