@@ -27,7 +27,7 @@ class ConnectHandler(
     val incomingMessages: Sink[Message, NotUsed] =
       Flow[Message].map {
         case TextMessage.Strict(msg) =>
-          val agentResponseOpt = Try(CommonModels.deserA(msg)).toOption
+          val agentResponseOpt = Try(CommonModels.deserAgentResponse(msg)).toOption
           agentResponseOpt match {
             case Some(agentResponse) =>
               logging.info(s"Receiving response for ${agentResponse.clientId} from $agentId")
@@ -50,7 +50,7 @@ class ConnectHandler(
           NotUsed
         }
         .map {
-          request => TextMessage.Strict(CommonModels.ser(request))
+          request => TextMessage.Strict(CommonModels.serClientRequest(request))
         }
     Flow.fromSinkAndSource(incomingMessages, outgoingMessages)
   }
