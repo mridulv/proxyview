@@ -15,22 +15,22 @@ object CommonModels {
 
   case class AgentResponse(agentId: String, clientId: String, response: String)
 
-  def ser(clientRequest: ClientRequest): String = {
+  def serClientRequest(clientRequest: ClientRequest): String = {
     Json.prettyPrint(Json.toJson(clientRequest))
   }
 
-  def deserC(clientRequest: String): ClientRequest = {
+  def deserClientRequest(clientRequest: String): ClientRequest = {
     Json.toJson(Json.parse(clientRequest)).asOpt[ClientRequest] match {
       case Some(clientRequest) => clientRequest
       case None => throw new RuntimeException("Parsing failed")
     }
   }
 
-  def ser(agentResponse: AgentResponse): String = {
+  def serAgentResponse(agentResponse: AgentResponse): String = {
     Json.prettyPrint(Json.toJson(agentResponse))
   }
 
-  def deserA(agentResponse: String): AgentResponse = {
+  def deserAgentResponse(agentResponse: String): AgentResponse = {
     Json.toJson(Json.parse(agentResponse)).asOpt[AgentResponse] match {
       case Some(agentResponse) => agentResponse
       case None => throw new RuntimeException("Parsing failed")

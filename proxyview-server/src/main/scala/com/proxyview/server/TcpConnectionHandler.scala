@@ -10,6 +10,7 @@ import com.proxyview.common.models.CommonModels.ClientRequest
 import rawhttp.core.{ RawHttp, RawHttpRequest }
 
 import java.util.UUID
+import scala.util.Try
 
 object TcpConnectionHandler {
   case class RequestData(bytes: ByteString)
@@ -73,13 +74,15 @@ class TcpConnectionHandler(authToken: String, connection: ActorRef, packetHandle
 
   private def handleRequest(rawHttpRequest: RawHttpRequest, data: String): Unit = {
     logger.info(s"validating the token for client: $uuid")
-    if (rawHttpRequest.getHeaders.get(AgentConf.AuthToken).get(0) == authToken) {
-      logger.info(s"Validation Passed for token from client: $uuid")
-      val hostHeader = rawHttpRequest.getHeaders.get(AgentConf.HostHeader).get(0)
-      packetHandler ! ClientRequest(uuid, hostHeader, data)
-    } else {
-      logger.error(s"Validation Failed for token from client: $uuid")
-      context.stop(self)
+    val tokenOpt = Try(rawHttpRequest.getHeaders.get(AgentConf.AuthToken).get(0)).toOption
+    tokenOpt match {
+      case Some(token) if token == authToken =>
+        logger.info(s"Validation Passed for token from client: $uuid")
+        val hostHeader = rawHttpRequest.getHeaders.get(AgentConf.HostHeader).get(0)
+        packetHandler ! ClientRequest(uuid, hostHeader, data)
+      case _ =>
+        logger.error(s"Validation Failed for token from client: $uuid")
+        context.stop(self)
     }
   }
 }

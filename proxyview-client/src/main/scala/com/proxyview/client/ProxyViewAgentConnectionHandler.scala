@@ -48,7 +48,7 @@ class ProxyViewAgentConnectionHandler(
     val incoming: Sink[Message, NotUsed] =
       Flow[Message].map {
         case TextMessage.Strict(msg) =>
-          val request = CommonModels.deserC(msg)
+          val request = CommonModels.deserClientRequest(msg)
           logging.info(s"Received request with id: ${request.clientId} for ${request.domain}")
           agentHttpClient ! request
       }.to(Sink.actorRef(agentHttpClient, PoisonPill))
@@ -61,7 +61,7 @@ class ProxyViewAgentConnectionHandler(
         NotUsed
       }.map { request =>
         logging.info(s"Sending response back for request with id: ${request.clientId} from ${request.agentId}")
-        TextMessage.Strict(CommonModels.ser(request))
+        TextMessage.Strict(CommonModels.serAgentResponse(request))
       }
 
     val flow: Flow[Message, Message, NotUsed] = Flow.fromSinkAndSource(incoming, outgoing)
