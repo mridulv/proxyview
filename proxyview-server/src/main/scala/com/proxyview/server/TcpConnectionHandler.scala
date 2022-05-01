@@ -5,7 +5,7 @@ import akka.event.Logging
 import akka.io.Tcp
 import akka.util.ByteString
 import TcpConnectionHandler._
-import com.proxyview.common.models.AgentConf
+import com.proxyview.common.models.{ AgentConf, HttpResponses }
 import com.proxyview.common.models.CommonModels.ClientRequest
 import rawhttp.core.{ RawHttp, RawHttpRequest }
 
@@ -57,11 +57,11 @@ class TcpConnectionHandler(authToken: String, connection: ActorRef, packetHandle
       packetHandler ! PacketHandler.DeregisterClient(uuid)
       context.stop(self)
 
-    case InvalidRequest =>
+    case InvalidRequest(_) =>
       logger.info(s"peer closed $uuid due to invalid request.")
       connection ! ResumeReading
       packetHandler ! PacketHandler.DeregisterClient(uuid)
-      context.stop(self)
+      connection ! Write(ByteString(HttpResponses.errorResponse.toString), Ack(sender()))
 
     case ResponseData(bytes) =>
       logger.info(s"received data for id $uuid.")
@@ -69,7 +69,7 @@ class TcpConnectionHandler(authToken: String, connection: ActorRef, packetHandle
 
     case Ack(sender) =>
       logger.info(s"acknowledgement for $uuid.")
-      sender ! Ack
+      context.stop(self)
   }
 
   private def handleRequest(rawHttpRequest: RawHttpRequest, data: String): Unit = {

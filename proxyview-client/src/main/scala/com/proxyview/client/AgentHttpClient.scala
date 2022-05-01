@@ -3,11 +3,9 @@ package com.proxyview.client
 import akka.actor.{ Actor, ActorRef, Props }
 import akka.event.Logging
 import com.proxyview.common.models.CommonModels.WebsocketConnected
-import com.proxyview.common.models.{ AgentConf, CommonModels }
+import com.proxyview.common.models.{ AgentConf, CommonModels, HttpResponses }
 import rawhttp.core.{ RawHttp, RawHttpRequest }
 import rawhttp.core.client.TcpRawHttpClient
-
-import scala.util.Try
 
 class AgentHttpClient(agentConf: AgentConf) extends Actor {
 
@@ -23,9 +21,16 @@ class AgentHttpClient(agentConf: AgentConf) extends Actor {
     case req: CommonModels.ClientRequest =>
       val request = rawHttp.parseRequest(req.request)
       logging.info(s"Received HTTP Request for ${request.getUri} from ${req.clientId}")
-      if (agentConf.validateRoute(request.getUri.getHost + ":" + request.getUri.getPort)) {
+      if (agentConf.validateRoute(req.domain)) {
         logging.info(s"Sending response for ${request.getUri} from ${req.clientId} $request")
-        val responseOpt = Try(makeHttpRequest(request)).toOption
+        val responseOpt = try {
+          Some(makeHttpRequest(request))
+        } catch {
+          case e: Exception =>
+            logging.error(s"Error while response is: ${e.getMessage}")
+            None
+        }
+        logging.info(s"response is: $responseOpt")
         responseOpt match {
           case Some(response) => ref ! CommonModels.AgentResponse(agentConf.agentId, req.clientId, response)
           case None => sendErrorResponse(ref, req, request)
@@ -40,7 +45,7 @@ class AgentHttpClient(agentConf: AgentConf) extends Actor {
     req: CommonModels.ClientRequest,
     request: RawHttpRequest): Unit = {
     logging.error(s"Validation failed for request ${request.getUri} from ${req.clientId}")
-    ref ! CommonModels.AgentResponse(agentConf.agentId, req.clientId, "HTTP/1.1 404 Not Found")
+    ref ! CommonModels.AgentResponse(agentConf.agentId, req.clientId, HttpResponses.errorResponse.toString)
   }
 
   private def makeHttpRequest(rawHttpRequest: RawHttpRequest): String = {
