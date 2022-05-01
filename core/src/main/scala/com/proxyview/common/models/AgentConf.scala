@@ -18,11 +18,11 @@ case class AgentConf(agentId: String, routes: Seq[AgentRoute], proxyview: Proxyv
       RawHeader(AuthToken, proxyview.token))
   }
 
-  def validateRoute(host: String): Boolean = {
+  def validateRoute(routeName: String): Boolean = {
     routes.exists { route =>
       route.`type` match {
-        case AgentRoute.IP | AgentRoute.CNAME => host == route.value
-        case AgentRoute.REGEX => new Regex(route.value).pattern.matcher(host).matches()
+        case AgentRoute.IP | AgentRoute.CNAME => routeName == route.value
+        case AgentRoute.REGEX => new Regex(route.value).pattern.matcher(routeName).matches()
       }
     }
   }

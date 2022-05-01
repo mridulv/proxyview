@@ -1,7 +1,7 @@
 host: "0.0.0.0"
 internal:
   port: 8081
-  token: "xxxx-xxxx-xxxx-xxxx"
+  token: "xxxx-yyyy-xxxx-yyyy"
 external:
   port: 8080
-  token: "xxxx-xxxx-xxxx-xxxx"
+  token: "xxxx-yyyy-xxxx-yyyy"
