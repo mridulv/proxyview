@@ -20,3 +20,4 @@ libraryDependencies ++= Seq(
   "commons-io" % "commons-io" % "2.6"
 ) ++ testDependencies
 
+dockerBaseImage := "openjdk"
