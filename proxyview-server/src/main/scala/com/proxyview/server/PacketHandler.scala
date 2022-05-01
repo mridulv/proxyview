@@ -10,13 +10,17 @@ import com.proxyview.server.TcpConnectionHandler.InvalidRequest
 
 import scala.collection.mutable
 import com.proxyview.common.models.Logging._
+import rawhttp.core.{ RawHttp, RawHttpHeaders }
+
+import java.net.URI
 
 class PacketHandler extends Actor {
 
-  protected val logging = Logging(context.system, this)
-
+  private val rawHttp = new RawHttp
   private val agents: mutable.Map[AgentConf, ActorRef] = mutable.Map[AgentConf, ActorRef]()
   private val tcpConnections: mutable.Map[String, ActorRef] = mutable.Map[String, ActorRef]()
+
+  protected val logging = Logging(context.system, this)
 
   override def receive: Receive = {
     case agentInfo: RegisterAgentInformation =>
@@ -30,8 +34,9 @@ class PacketHandler extends Actor {
       tcpConnections.remove(clientId)
     case request: ClientRequest =>
       logging.info(s"Receiving request from: ${request.clientId} for ${request.domain}")
+      val rawHttpRequest = rawHttp.parseRequest(request.request)
       tcpConnections.put(request.clientId, sender())
-      findActor(request.domain) match {
+      findActor(rawHttpRequest.getUri) match {
         case Some(actorRef) => actorRef ! request
         case None => sender() ! InvalidRequest(request.domain)
       }
@@ -44,8 +49,8 @@ class PacketHandler extends Actor {
     agents.find(_._1.agentId == agentId).map(_._1)
   }
 
-  private def findActor(domain: String): Option[ActorRef] = {
-    agents.keys.find(_.validateRoute(domain)).map(agents(_))
+  private def findActor(uri: URI): Option[ActorRef] = {
+    agents.keys.find(_.validateRoute(uri)).map(agents(_))
   }
 }
 

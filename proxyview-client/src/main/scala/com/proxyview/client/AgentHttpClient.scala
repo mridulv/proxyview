@@ -4,7 +4,7 @@ import akka.actor.{ Actor, ActorRef, Props }
 import akka.event.Logging
 import com.proxyview.common.models.CommonModels.WebsocketConnected
 import com.proxyview.common.models.{ AgentConf, CommonModels, HttpResponses }
-import rawhttp.core.{ RawHttp, RawHttpRequest }
+import rawhttp.core.{ RawHttp, RawHttpHeaders, RawHttpRequest }
 import rawhttp.core.client.TcpRawHttpClient
 
 class AgentHttpClient(agentConf: AgentConf) extends Actor {
@@ -20,8 +20,8 @@ class AgentHttpClient(agentConf: AgentConf) extends Actor {
   def listening(ref: ActorRef): Receive = {
     case req: CommonModels.ClientRequest =>
       val request = rawHttp.parseRequest(req.request)
-      logging.info(s"Received HTTP Request for ${request.getUri} from ${req.clientId}")
-      if (agentConf.validateRoute(req.domain)) {
+      logging.info(s"Received HTTP Request for ${request.getUri} from ${req.clientId}.")
+      if (agentConf.validateRoute(request.getUri)) {
         logging.info(s"Sending response for ${request.getUri} from ${req.clientId} $request")
         val responseOpt = try {
           Some(makeHttpRequest(request))
@@ -30,7 +30,6 @@ class AgentHttpClient(agentConf: AgentConf) extends Actor {
             logging.error(s"Error while response is: ${e.getMessage}")
             None
         }
-        logging.info(s"response is: $responseOpt")
         responseOpt match {
           case Some(response) => ref ! CommonModels.AgentResponse(agentConf.agentId, req.clientId, response)
           case None => sendErrorResponse(ref, req, request)
@@ -44,7 +43,7 @@ class AgentHttpClient(agentConf: AgentConf) extends Actor {
     ref: ActorRef,
     req: CommonModels.ClientRequest,
     request: RawHttpRequest): Unit = {
-    logging.error(s"Validation failed for request ${request.getUri} from ${req.clientId}")
+    logging.error(s"Sending Error Response for Request ${request.getUri} from ${req.clientId}")
     ref ! CommonModels.AgentResponse(agentConf.agentId, req.clientId, HttpResponses.errorResponse.toString)
   }
 

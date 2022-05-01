@@ -73,7 +73,7 @@ class TcpConnectionHandler(authToken: String, connection: ActorRef, packetHandle
   }
 
   private def handleRequest(rawHttpRequest: RawHttpRequest, data: String): Unit = {
-    logger.info(s"validating the token for client: $uuid")
+    logger.info(s"Validating the token for client: $uuid")
     val tokenOpt = Try(rawHttpRequest.getHeaders.get(AgentConf.AuthToken).get(0)).toOption
     tokenOpt match {
       case Some(token) if token == authToken =>
@@ -82,7 +82,7 @@ class TcpConnectionHandler(authToken: String, connection: ActorRef, packetHandle
         packetHandler ! ClientRequest(uuid, hostHeader, data)
       case _ =>
         logger.error(s"Validation Failed for token from client: $uuid")
-        context.stop(self)
+        connection ! Write(ByteString(HttpResponses.errorResponse.toString), Ack(sender()))
     }
   }
 }
