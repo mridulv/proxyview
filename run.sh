@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# TAG=$SOME_TAG run.sh
+# TAG=$SOME_TAG ./run.sh
 
 sbt proxyview-client/docker:publishLocal
 sbt proxyview-server/docker:publishLocal

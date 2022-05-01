@@ -24,7 +24,8 @@ sbt proxyview-server/docker:publishLocal
 ### Running on Local Machine
 
 - Installing Docker
-- Running `run.sh` file with appropriate `TAG` Env variable. This will create the docker images and bring up a local proxyview-server + proxyview-client setup.  
+- Running `run.sh` file with appropriate `TAG` Env variable. This will create the docker images and bring up a local proxyview-server + proxyview-client setup.
+- Run this curl command `curl -v -H 'Host: localhost-sample2:80' -H 'auth-token: xasxxx-yyyy-xxxx-yyyy' localhost:8080`
 
 ## Technical Details
 
