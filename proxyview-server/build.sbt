@@ -6,7 +6,7 @@ name := "proxyview-server"
 
 mainClass in Compile := Some("com.proxyview.server.Main")
 
-version := sys.env.get("TAG").filter(_.nonEmpty).getOrElse("latest")
+version := "latest"
 
 libraryDependencies ++= Seq(
   "joda-time" % "joda-time" % "2.9.9",
