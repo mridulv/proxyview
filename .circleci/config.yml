@@ -3,7 +3,7 @@ jobs:
   build:
     working_directory: /proxyview
     docker:
-      - image: docker.io/mridulverma/proxyview:circleci-v1.0
+      - image: docker.io/mridulverma/proxyview:circleci-v2.0
         auth:
           username: $DOCKER_USER
           password: $DOCKER_PASS
