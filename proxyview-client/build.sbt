@@ -5,7 +5,7 @@ name := "proxyview-client"
 
 mainClass in Compile := Some("com.proxyview.client.Main")
 
-version := "latest"
+version := sys.props.get("TAG").filter(_.nonEmpty).getOrElse("latest")
 
 dockerRepository := Some("mridulverma")
 
