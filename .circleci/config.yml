@@ -8,7 +8,7 @@ jobs:
           username: $DOCKER_USER
           password: $DOCKER_PASS
         environment:
-          TAG: CIRCLE_TAG
+          TAG: $CIRCLE_TAG
     steps:
       - checkout
       - setup_remote_docker
