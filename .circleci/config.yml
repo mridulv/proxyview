@@ -1,7 +1,7 @@
 version: 2.1
 jobs:
   build:
-    working_directory: /proxyview
+    working_directory: /root/proxyview
     docker:
       - image: docker.io/mridulverma/proxyview:circleci-v2.0
         auth:
