@@ -12,7 +12,7 @@ import akka.event.Logging
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.settings.ClientConnectionSettings
 import akka.util.ByteString
-import com.proxyview.common.models.{ AgentConf, CommonModels }
+import com.proxyview.common.models.{ ClientConf, CommonModels }
 import com.proxyview.common.models.Logging._
 
 import java.util.concurrent.atomic.AtomicInteger
@@ -20,9 +20,7 @@ import scala.concurrent.Future
 import scala.concurrent.Await
 import scala.concurrent.duration.DurationInt
 
-class ProxyViewAgentConnectionHandler(
-  agentConf: AgentConf,
-  agentHttpClient: ActorRef)(implicit
+class ProxyViewAgentConnectionHandler(agentConf: ClientConf, agentHttpClient: ActorRef)(implicit
   val actorSystem: ActorSystem,
   implicit val actorMaterializer: ActorMaterializer) {
 
@@ -35,33 +33,33 @@ class ProxyViewAgentConnectionHandler(
     val httpRequest = HttpRequest(
       method = HttpMethods.POST,
       uri = agentConf.proxyview.connectUri,
-      headers = agentConf.agentHeaders(),
-      entity = HttpEntity(ContentTypes.`application/json`, AgentConf.ser(agentConf)))
+      headers = agentConf.clientHeaders(),
+      entity = HttpEntity(ContentTypes.`application/json`, ClientConf.ser(agentConf)))
     Await.result(
       RetryableHttpClient.apply(retryConfig).request(httpRequest).flatMap(_.entity.toStrict(retryConfig.overallDelay)),
       retryConfig.overallDelay)
 
-    logging.info(s"Registered agent with id: ${agentConf.agentId} with ${agentConf.proxyview.connectUri}")
+    logging.info(s"Registered agent with id: ${agentConf.clientId} with ${agentConf.proxyview.connectUri}")
   }
 
   def start(): Unit = {
     val incoming: Sink[Message, NotUsed] =
       Flow[Message].map {
         case TextMessage.Strict(msg) =>
-          val request = CommonModels.deserClientRequest(msg)
-          logging.info(s"Received request with id: ${request.clientId} for ${request.domain}")
+          val request = CommonModels.deserConnectionRequest(msg)
+          logging.info(s"Received request with id: ${request.connectionId} for ${request.domain}")
           agentHttpClient ! request
       }.to(Sink.actorRef(agentHttpClient, PoisonPill))
 
     val outgoing: Source[Message, NotUsed] = Source
-      .actorRef[CommonModels.AgentResponse](10, OverflowStrategy.fail)
+      .actorRef[CommonModels.ClientResponse](10, OverflowStrategy.fail)
       .mapMaterializedValue { outgoingActor =>
         logging.info(s"Registering actor for sending response agent to server")
         agentHttpClient ! CommonModels.WebsocketConnected(outgoingActor)
         NotUsed
       }.map { request =>
-        logging.info(s"Sending response back for request with id: ${request.clientId} from ${request.agentId}")
-        TextMessage.Strict(CommonModels.serAgentResponse(request))
+        logging.info(s"Sending response back for request with id: ${request.clientId} from ${request.clientId}")
+        TextMessage.Strict(CommonModels.serClientResponse(request))
       }
 
     val flow: Flow[Message, Message, NotUsed] = Flow.fromSinkAndSource(incoming, outgoing)
@@ -79,7 +77,7 @@ class ProxyViewAgentConnectionHandler(
 
     val (upgradeResponse, _) =
       Http().singleWebSocketRequest(
-        WebSocketRequest(s"ws://${agentConf.proxyview.url}/connect", agentConf.agentHeaders()),
+        WebSocketRequest(s"ws://${agentConf.proxyview.url}/connect", agentConf.clientHeaders()),
         flow,
         settings = customSettings)
 

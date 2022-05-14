@@ -3,7 +3,7 @@ services:
 
   proxyview-server:
     container_name: server
-    image: "proxyview-server:${TAG}"
+    image: "mridulverma/proxyview-server:${TAG}"
     networks:
       proxyview_nw:
         aliases:
@@ -19,7 +19,7 @@ services:
 
   client1:
     container_name: client1
-    image: "proxyview-client:${TAG}"
+    image: "mridulverma/proxyview-client:${TAG}"
     networks: ["proxyview_nw"]
     environment:
       - ENV=development
@@ -29,7 +29,7 @@ services:
 
   client2:
     container_name: client2
-    image: "proxyview-client:${TAG}"
+    image: "mridulverma/proxyview-client:${TAG}"
     networks: ["proxyview_nw"]
     environment:
       - ENV=development

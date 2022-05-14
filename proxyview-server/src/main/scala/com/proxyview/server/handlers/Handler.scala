@@ -3,8 +3,8 @@ package com.proxyview.server.handlers
 import akka.actor.ActorSystem
 import akka.event.Logging
 import akka.http.scaladsl.model.{ HttpHeader, HttpRequest, HttpResponse }
-import com.proxyview.common.models.AgentConf
-import com.proxyview.common.models.AgentConf.{ AgentIdHeaderKey, AuthToken }
+import com.proxyview.common.models.ClientConf
+import com.proxyview.common.models.ClientConf.{ ClientIdHeaderKey, AuthToken }
 import com.proxyview.server.model.ServerConfig
 import com.proxyview.common.models.Logging._
 
@@ -17,24 +17,24 @@ trait Handler {
   protected val logging = Logging(actorSystem, this)
 
   val serverConfig: ServerConfig
-  val agentsInfo: mutable.Map[String, AgentConf]
+  val clientsInfo: mutable.Map[String, ClientConf]
 
   def handle(req: HttpRequest): HttpResponse = {
-    if (authenticateAgent(req.headers)) {
-      val agentID = req
+    if (authenticateClient(req.headers)) {
+      val clientId = req
         .headers
-        .find(_.name() == AgentIdHeaderKey)
+        .find(_.name() == ClientIdHeaderKey)
         .map(_.value())
         .getOrElse("random")
-      handleAuthenticated(agentID, req)
+      handleAuthenticated(clientId, req)
     } else {
       HttpResponse(200, entity = "UnAuthenticated")
     }
   }
 
-  protected def handleAuthenticated(agentId: String, req: HttpRequest): HttpResponse
+  protected def handleAuthenticated(clientId: String, req: HttpRequest): HttpResponse
 
-  private def authenticateAgent(headers: Seq[HttpHeader]): Boolean = {
+  private def authenticateClient(headers: Seq[HttpHeader]): Boolean = {
     val authenticated = headers.exists { header =>
       if (header.name() == AuthToken) {
         header.value() == serverConfig.token
@@ -43,7 +43,7 @@ trait Handler {
       }
     }
 
-    authenticated && headers.map(_.name()).contains(AgentIdHeaderKey)
+    authenticated && headers.map(_.name()).contains(ClientIdHeaderKey)
   }
 
 }

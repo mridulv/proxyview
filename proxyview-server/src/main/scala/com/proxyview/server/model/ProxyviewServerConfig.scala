@@ -8,11 +8,11 @@ case class ProxyviewServerConfig(
   external: ProxyviewEndpointConfig) {
 
   def externalServerConfig(): ServerConfig = {
-    ServerConfig(host, external.port, external.token)
+    ServerConfig(host, external.port, external.token, external.whitelistedIps)
   }
 
   def internalServerConfig(): ServerConfig = {
-    ServerConfig(host, internal.port, internal.token)
+    ServerConfig(host, internal.port, internal.token, internal.whitelistedIps)
   }
 
 }

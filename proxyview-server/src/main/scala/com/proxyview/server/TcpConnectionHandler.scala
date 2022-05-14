@@ -5,8 +5,8 @@ import akka.event.Logging
 import akka.io.Tcp
 import akka.util.ByteString
 import TcpConnectionHandler._
-import com.proxyview.common.models.{ AgentConf, HttpResponses }
-import com.proxyview.common.models.CommonModels.ClientRequest
+import com.proxyview.common.models.{ ClientConf, HttpResponses }
+import com.proxyview.common.models.CommonModels.ConnectionRequest
 import rawhttp.core.{ RawHttp, RawHttpRequest }
 
 import java.util.UUID
@@ -17,12 +17,12 @@ object TcpConnectionHandler {
   case class ResponseData(bytes: ByteString)
   case class InvalidRequest(domain: String)
 
-  def props(authToken: String, connection: ActorRef, packetHandler: ActorRef) =
-    Props(classOf[TcpConnectionHandler], authToken, connection, packetHandler)
+  def props(authToken: String, whitelistedIps: Option[Seq[String]], connection: ActorRef, packetHandler: ActorRef) =
+    Props(classOf[TcpConnectionHandler], authToken, whitelistedIps, connection, packetHandler)
 
 }
 
-class TcpConnectionHandler(authToken: String, connection: ActorRef, packetHandler: ActorRef)
+class TcpConnectionHandler(authToken: String, whitelistedIps: Option[Seq[String]], connection: ActorRef, packetHandler: ActorRef)
   extends Actor {
 
   private val logger = Logging(context.system, this)
@@ -74,12 +74,12 @@ class TcpConnectionHandler(authToken: String, connection: ActorRef, packetHandle
 
   private def handleRequest(rawHttpRequest: RawHttpRequest, data: String): Unit = {
     logger.info(s"Validating the token for client: $uuid")
-    val tokenOpt = Try(rawHttpRequest.getHeaders.get(AgentConf.AuthToken).get(0)).toOption
+    val tokenOpt = Try(rawHttpRequest.getHeaders.get(ClientConf.AuthToken).get(0)).toOption
     tokenOpt match {
       case Some(token) if token == authToken =>
         logger.info(s"Validation Passed for token from client: $uuid")
-        val hostHeader = rawHttpRequest.getHeaders.get(AgentConf.HostHeader).get(0)
-        packetHandler ! ClientRequest(uuid, hostHeader, data)
+        val hostHeader = rawHttpRequest.getHeaders.get(ClientConf.HostHeader).get(0)
+        packetHandler ! ConnectionRequest(uuid, hostHeader, data)
       case _ =>
         logger.error(s"Validation Failed for token from client: $uuid")
         connection ! Write(ByteString(HttpResponses.errorResponse.toString), Ack(sender()))

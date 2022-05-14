@@ -1,3 +1,3 @@
 package com.proxyview.server.model
 
-case class ServerConfig(host: String, port: Int, token: String)
+case class ServerConfig(host: String, port: Int, token: String, whitelistedIps: Option[Seq[String]])

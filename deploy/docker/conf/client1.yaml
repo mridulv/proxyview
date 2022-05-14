@@ -1,4 +1,4 @@
-agentId: "agent-1"
+clientId: "agent-1"
 routes:
   - name: "route1"
     value: "localhost-sample"

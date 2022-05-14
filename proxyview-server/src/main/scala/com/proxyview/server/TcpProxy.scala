@@ -45,7 +45,7 @@ class TcpProxy(serverConfig: ServerConfig, packetHandler: ActorRef) extends Acto
     case Connected(_, _) =>
       logger.info(s"Client connected on port $port")
       val connection = sender()
-      val handler = context.actorOf(TcpConnectionHandler.props(token, connection, packetHandler))
+      val handler = context.actorOf(TcpConnectionHandler.props(token, whitelistedIps, connection, packetHandler))
       connection ! Register(handler)
       listener ! ResumeAccepting(batchSize = 1)
 

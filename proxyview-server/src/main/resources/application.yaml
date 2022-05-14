@@ -5,3 +5,4 @@ internal:
 external:
   port: 8080
   token: "xxxx-xxxx-xxxx-xxxx"
+  whitelistedIps: []

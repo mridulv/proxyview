@@ -6,7 +6,7 @@ import org.apache.commons.io.FileUtils
 
 import java.nio.charset.StandardCharsets
 import net.jcazevedo.moultingyaml._
-import com.proxyview.common.models.AgentConf
+import com.proxyview.common.models.ClientConf
 
 import java.nio.file.Paths
 
@@ -23,12 +23,12 @@ object Main {
       val is = getClass.getResourceAsStream(APPLICATION_CONFIG)
       scala.io.Source.fromInputStream(is).mkString
     }
-    val agentConf = fileContent.parseYaml.convertTo[AgentConf]
+    val agentConf = fileContent.parseYaml.convertTo[ClientConf]
 
-    implicit val system: ActorSystem = ActorSystem(s"$ACTOR_SYSTEM-${agentConf.agentId}")
+    implicit val system: ActorSystem = ActorSystem(s"$ACTOR_SYSTEM-${agentConf.clientId}")
     implicit val materializer: ActorMaterializer = ActorMaterializer()
 
-    val agentHttpClient = system.actorOf(AgentHttpClient.props(agentConf))
+    val agentHttpClient = system.actorOf(ProxyHttpClient.props(agentConf))
 
     val connectionHandler = new ProxyViewAgentConnectionHandler(agentConf, agentHttpClient)
     connectionHandler.register()

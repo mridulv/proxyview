@@ -8,31 +8,31 @@ object CommonModels {
 
   case class WebsocketConnected(actorRef: ActorRef)
 
-  implicit val ClientRequestFormatter: Format[ClientRequest] = Jsonx.formatCaseClassUseDefaults[ClientRequest]
-  implicit val AgentResponseFormatter: Format[AgentResponse] = Jsonx.formatCaseClassUseDefaults[AgentResponse]
+  implicit val ConnectionRequestFormatter: Format[ConnectionRequest] = Jsonx.formatCaseClassUseDefaults[ConnectionRequest]
+  implicit val ClientResponseFormatter: Format[ClientResponse] = Jsonx.formatCaseClassUseDefaults[ClientResponse]
 
-  case class ClientRequest(clientId: String, domain: String, request: String)
+  case class ConnectionRequest(connectionId: String, domain: String, request: String)
 
-  case class AgentResponse(agentId: String, clientId: String, response: String)
+  case class ClientResponse(clientId: String, requestId: String, response: String)
 
-  def serClientRequest(clientRequest: ClientRequest): String = {
-    Json.prettyPrint(Json.toJson(clientRequest))
+  def serConnectionRequest(connectionRequest: ConnectionRequest): String = {
+    Json.prettyPrint(Json.toJson(connectionRequest))
   }
 
-  def deserClientRequest(clientRequest: String): ClientRequest = {
-    Json.toJson(Json.parse(clientRequest)).asOpt[ClientRequest] match {
+  def deserConnectionRequest(connectionRequest: String): ConnectionRequest = {
+    Json.toJson(Json.parse(connectionRequest)).asOpt[ConnectionRequest] match {
       case Some(clientRequest) => clientRequest
       case None => throw new RuntimeException("Parsing failed")
     }
   }
 
-  def serAgentResponse(agentResponse: AgentResponse): String = {
-    Json.prettyPrint(Json.toJson(agentResponse))
+  def serClientResponse(clientResponse: ClientResponse): String = {
+    Json.prettyPrint(Json.toJson(clientResponse))
   }
 
-  def deserAgentResponse(agentResponse: String): AgentResponse = {
-    Json.toJson(Json.parse(agentResponse)).asOpt[AgentResponse] match {
-      case Some(agentResponse) => agentResponse
+  def deserClientResponse(clientResponse: String): ClientResponse = {
+    Json.toJson(Json.parse(clientResponse)).asOpt[ClientResponse] match {
+      case Some(clientResponse) => clientResponse
       case None => throw new RuntimeException("Parsing failed")
     }
   }
