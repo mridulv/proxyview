@@ -12,9 +12,9 @@ import scala.collection.mutable
 import scala.concurrent.Await
 import scala.concurrent.duration.DurationInt
 
-class RegisterHandler(
-  override val serverConfig: ServerConfig,
-  override val clientsInfo: mutable.Map[String, ClientConf])(implicit val materializer: Materializer, val actorSystem: ActorSystem)
+class RegisterHandler(override val serverConfig: ServerConfig,
+                      override val clientsInfo: mutable.Map[String, ClientConf])
+                     (implicit val materializer: Materializer, val actorSystem: ActorSystem)
   extends Handler {
 
   protected def handleAuthenticated(clientId: String, req: HttpRequest): HttpResponse = {

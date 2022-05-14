@@ -42,12 +42,14 @@ class TcpProxy(serverConfig: ServerConfig, packetHandler: ActorRef) extends Acto
   }
 
   def listening(listener: ActorRef): Receive = {
-    case Connected(_, _) =>
-      logger.info(s"Client connected on port $port")
+    case Connected(remoteAddress, _) =>
+      val incomingIp = remoteAddress.getAddress.getHostAddress
+      logger.info(s"TCP Connection on port $port with incoming connection from: $incomingIp")
       val connection = sender()
-      val handler = context.actorOf(TcpConnectionHandler.props(token, whitelistedIps, connection, packetHandler))
-      connection ! Register(handler)
-      listener ! ResumeAccepting(batchSize = 1)
+      whitelistedIps match {
+        case Some(ips) => handleConnection(connection, !ips.contains(incomingIp), listener)
+        case None => handleConnection(connection, false, listener)
+      }
 
     case Unbound =>
       logger.info(s"TCP connection unbound for port $port. We have shut down.")
@@ -55,6 +57,12 @@ class TcpProxy(serverConfig: ServerConfig, packetHandler: ActorRef) extends Acto
 
     case other =>
       logger.warning(f"Unexpected Message to TCP Listener: $other")
+  }
+
+  private def handleConnection(connection: ActorRef, closeConnection: Boolean, listener: ActorRef): Unit = {
+    val handler = context.actorOf(TcpConnectionHandler.props(token, closeConnection, connection, packetHandler))
+    connection ! Register(handler)
+    listener ! ResumeAccepting(batchSize = 1)
   }
 }
 

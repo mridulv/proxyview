@@ -13,10 +13,10 @@ import com.proxyview.server.PacketHandler
 import scala.collection.mutable
 import scala.util.Try
 
-class ConnectHandler(
-  override val serverConfig: ServerConfig,
-  override val clientsInfo: mutable.Map[String, ClientConf],
-  packetHandler: ActorRef)(implicit val actorSystem: ActorSystem)
+class ConnectHandler(override val serverConfig: ServerConfig,
+                     override val clientsInfo: mutable.Map[String, ClientConf],
+                     packetHandler: ActorRef)
+                    (implicit val actorSystem: ActorSystem)
   extends Handler {
 
   protected def handleAuthenticated(clientId: String, req: HttpRequest): HttpResponse = {

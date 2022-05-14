@@ -15,11 +15,7 @@ import scala.collection.mutable
 import scala.concurrent.Future
 import com.proxyview.common.models.Logging._
 
-class ProxyViewConnectionHandler(
-  serverConfig: ServerConfig,
-  packetHandler: ActorRef)(implicit
-  val actorSystem: ActorSystem,
-  implicit val actorMaterializer: ActorMaterializer) {
+class ProxyViewConnectionHandler(serverConfig: ServerConfig, packetHandler: ActorRef)(implicit val actorSystem: ActorSystem, implicit val actorMaterializer: ActorMaterializer) {
 
   import serverConfig._
 

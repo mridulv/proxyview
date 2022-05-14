@@ -17,12 +17,12 @@ object TcpConnectionHandler {
   case class ResponseData(bytes: ByteString)
   case class InvalidRequest(domain: String)
 
-  def props(authToken: String, whitelistedIps: Option[Seq[String]], connection: ActorRef, packetHandler: ActorRef) =
-    Props(classOf[TcpConnectionHandler], authToken, whitelistedIps, connection, packetHandler)
+  def props(authToken: String, closeConnection: Boolean, connection: ActorRef, packetHandler: ActorRef) =
+    Props(classOf[TcpConnectionHandler], authToken, closeConnection, connection, packetHandler)
 
 }
 
-class TcpConnectionHandler(authToken: String, whitelistedIps: Option[Seq[String]], connection: ActorRef, packetHandler: ActorRef)
+class TcpConnectionHandler(authToken: String, closeConnection: Boolean, connection: ActorRef, packetHandler: ActorRef)
   extends Actor {
 
   private val logger = Logging(context.system, this)
@@ -47,9 +47,14 @@ class TcpConnectionHandler(authToken: String, whitelistedIps: Option[Seq[String]
 
   def receive = {
     case Received(data) =>
-      logger.info(s"Received data (${data.size} bytes) for $uuid from the client.")
-      val rawHttpRequest = rawHttp.parseRequest(data.utf8String)
-      handleRequest(rawHttpRequest, data.utf8String)
+      if (closeConnection) {
+        logger.info(s"Not Whitelisted Ip. Hence closing the connection")
+        context.stop(self)
+      } else {
+        logger.info(s"Received data (${data.size} bytes) for $uuid from the client.")
+        val rawHttpRequest = rawHttp.parseRequest(data.utf8String)
+        handleRequest(rawHttpRequest, data.utf8String)
+      }
 
     case PeerClosed =>
       logger.info(s"peer closed $uuid from client side.")
