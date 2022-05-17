@@ -42,6 +42,10 @@ sbt proxyview-server/docker:publishLocal
   Eg `TAG=1.2 ./run.sh`
 - Run this curl command `curl -v -H 'Host: localhost-sample2:80' -H 'auth-token: xasxxx-yyyy-xxxx-yyyy' localhost:8080`
 
+## Additional Resources
+
+- https://miuv.blog/2022/05/17/introduction-to-proxyview/
+
 ## Technical Details
 
 Here is a basic architecture explaining the internals of Proxyview
