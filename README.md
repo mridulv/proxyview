@@ -1,7 +1,7 @@
 # proxyview
 
 ## Introduction
-Proxyview helps you to make HTTP Requests to all your internally deployed services which cannot be reached out from local system.
+Proxyview helps you to proxy HTTP Requests to all your internally deployed services on k8s pods or ec2 machines via a single endpoint.
 
 ## Details
 
